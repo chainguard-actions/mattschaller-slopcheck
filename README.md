@@ -9,6 +9,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 | Version | Tag | Upstream commit |
 |---------|-----|-----------------|
 | v0.1.4 | [`v0.1.4`](https://github.com/chainguard-actions/mattschaller-slopcheck/tree/v0.1.4) | [`5039185`](https://github.com/mattschaller/slopcheck/commit/5039185b4fe7f359c713c7670efa2aa031860988) |
+| v0.2.0 | [`v0.2.0`](https://github.com/chainguard-actions/mattschaller-slopcheck/tree/v0.2.0) | [`a06a9b1`](https://github.com/mattschaller/slopcheck/commit/a06a9b134d26006c7f3c8103eb1f14cf5cc5ad68) |
 
 ## Privacy
 
