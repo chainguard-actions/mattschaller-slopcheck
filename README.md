@@ -1,1 +1,15 @@
-# mattschaller-slopcheck
+# mattschaller/slopcheck
+
+Scan markdown and config files for hallucinated npm package names (slopsquatting defense)
+
+Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at [https://github.com/mattschaller/slopcheck](https://github.com/mattschaller/slopcheck).
+
+## Versions
+
+| Version | Tag | Upstream commit |
+|---------|-----|-----------------|
+| v0.1.4 | [`v0.1.4`](https://github.com/chainguard-actions/mattschaller-slopcheck/tree/v0.1.4) | [`5039185`](https://github.com/mattschaller/slopcheck/commit/5039185b4fe7f359c713c7670efa2aa031860988) |
+
+## Privacy
+
+This Action contacts Chainguard's licensing server to verify authorization. Connection metadata (IP address, GitHub repository identifier, timestamp, and any metadata encoded in the auth token) is transmitted to Chainguard, Inc. even if authorization is denied in accordance with our [Privacy Notice](https://www.chainguard.dev/legal/privacy-notice)
