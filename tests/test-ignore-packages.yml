@@ -1,0 +1,39 @@
+name: Test ignore packages input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Build action
+        run: |
+          npm install
+          npm run build
+
+      - name: Create markdown file referencing packages to be ignored
+        run: |
+          mkdir -p /tmp/slopcheck-test-ignore
+          cat > /tmp/slopcheck-test-ignore/README.md << 'EOF'
+          # My Project
+
+          ## Setup
+
+          ```bash
+          npm install slopcheck-fake-pkg-ignore-test-aaa
+          npm install slopcheck-fake-pkg-ignore-test-bbb
+          ```
+          EOF
+
+      - id: action
+        uses: .
+        with:
+          paths: '/tmp/slopcheck-test-ignore'
+          ignore: 'slopcheck-fake-pkg-ignore-test-aaa,slopcheck-fake-pkg-ignore-test-bbb'
+          concurrency: '5'
+
+      - name: Assert action succeeded (ignored packages were skipped)
+        run: |
+          echo "Action completed successfully — ignored packages were skipped"
+          echo "PASS"

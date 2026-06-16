@@ -1,0 +1,42 @@
+name: Test scan with known real npm packages
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Build action
+        run: |
+          npm install
+          npm run build
+
+      - name: Create markdown file referencing real npm packages
+        run: |
+          mkdir -p /tmp/slopcheck-test-known
+          cat > /tmp/slopcheck-test-known/AGENTS.md << 'EOF'
+          # Agent Instructions
+
+          ## Setup
+
+          Install dependencies:
+
+          ```bash
+          npm install react
+          npm install typescript
+          ```
+
+          These are all real packages that exist on npm.
+          EOF
+
+      - id: action
+        uses: .
+        with:
+          paths: '/tmp/slopcheck-test-known'
+          concurrency: '5'
+
+      - name: Assert action succeeded (all packages verified)
+        run: |
+          echo "Action completed successfully — all referenced packages exist on npm"
+          echo "PASS"

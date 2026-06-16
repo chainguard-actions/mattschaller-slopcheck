@@ -1,0 +1,46 @@
+name: Test phantom package detection
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Build action
+        run: |
+          npm install
+          npm run build
+
+      - name: Create markdown file referencing a phantom npm package
+        run: |
+          mkdir -p /tmp/slopcheck-test-phantom
+          cat > /tmp/slopcheck-test-phantom/AGENTS.md << 'EOF'
+          # Agent Instructions
+
+          ## Setup
+
+          Install the required tool:
+
+          ```bash
+          npx slopcheck-definitely-not-a-real-package-xyzzy-12345
+          ```
+          EOF
+
+      - id: action
+        uses: .
+        with:
+          paths: '/tmp/slopcheck-test-phantom'
+          concurrency: '5'
+        continue-on-error: true
+
+      - name: Assert action failed (phantom package was detected)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "action outcome: $OUTCOME"
+          if [ "$OUTCOME" != "failure" ]; then
+            echo "FAIL: expected action to fail when phantom package is detected, but outcome was '$OUTCOME'"
+            exit 1
+          fi
+          echo "PASS: action correctly detected phantom package and exited with failure"

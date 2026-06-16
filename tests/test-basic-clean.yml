@@ -1,0 +1,37 @@
+name: Test basic clean scan
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Build action
+        run: |
+          npm install
+          npm run build
+
+      - name: Create a clean markdown file with no npm references
+        run: |
+          mkdir -p /tmp/slopcheck-test-clean
+          cat > /tmp/slopcheck-test-clean/README.md << 'EOF'
+          # My Project
+
+          This is a simple project with no npm install commands.
+
+          ## Usage
+
+          Just run the binary directly.
+          EOF
+
+      - id: action
+        uses: .
+        with:
+          paths: '/tmp/slopcheck-test-clean'
+          concurrency: '5'
+
+      - name: Assert action succeeded (no phantom packages found)
+        run: |
+          echo "Action completed successfully — no phantom packages detected"
+          echo "PASS"

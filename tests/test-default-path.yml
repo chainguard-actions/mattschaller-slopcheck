@@ -1,0 +1,32 @@
+name: Test default path scan
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Build action
+        run: |
+          npm install
+          npm run build
+
+      - name: Create a temp directory with a simple clean file
+        run: |
+          mkdir -p /tmp/slopcheck-default-test
+          cat > /tmp/slopcheck-default-test/notes.md << 'EOF'
+          # Notes
+
+          No package install commands here.
+          EOF
+
+      - id: action
+        uses: .
+        with:
+          paths: '/tmp/slopcheck-default-test'
+
+      - name: Assert action completed successfully with default concurrency
+        run: |
+          echo "Action completed with default concurrency setting"
+          echo "PASS"
