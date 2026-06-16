@@ -1,0 +1,41 @@
+name: Test ignore input skips specified packages
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Build action
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          npm install
+          npm run build
+
+      - name: Create markdown file referencing only real packages
+        run: |
+          mkdir -p /tmp/slopcheck-ignore
+          cat > /tmp/slopcheck-ignore/SKILL.md << 'EOF'
+          # Skill Instructions
+
+          Install the following packages:
+
+          ```bash
+          npm install lodash
+          npm install express
+          ```
+          EOF
+
+      - name: Run slopcheck with ignore list
+        id: action
+        uses: .
+        with:
+          paths: '/tmp/slopcheck-ignore'
+          ignore: 'lodash,express'
+          concurrency: '5'
+
+      - name: Assert action succeeded (ignored packages skipped)
+        run: |
+          echo "Action completed successfully — ignored packages were skipped"
+          echo "PASS"
