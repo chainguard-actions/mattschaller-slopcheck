@@ -1,6 +1,11 @@
 {
   "owner": "mattschaller",
   "repo": "slopcheck",
-  "version": "",
-  "url": "https://github.com/mattschaller/slopcheck"
+  "version": "v0.1.2",
+  "commit_sha": "40117d736a9cfb79050610ed44cb982d884f20d5",
+  "url": "https://github.com/mattschaller/slopcheck",
+  "policy_sha": "d636be7e43ef829af6e853da6b3c7566db9f72fe",
+  "test_policy_sha": "843adf9e4b8f85d0c08b27b9d0b09dd094b54702",
+  "test_agent_version": "1",
+  "harden_agent_version": "1"
 }

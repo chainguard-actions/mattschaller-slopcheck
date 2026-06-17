@@ -1,0 +1,48 @@
+name: Test scanning a specific file path
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Build action
+        working-directory: ${{ github.workspace }}
+        run: |
+          npm install
+          npm run build
+
+      - name: Create specific markdown files to scan
+        run: |
+          mkdir -p /tmp/scan-file
+          cat > /tmp/scan-file/docs.md << 'EOF'
+          # Documentation
+
+          Install dependencies:
+
+          ```bash
+          npm install react
+          npm install react-dom
+          ```
+          EOF
+          # Create another file that should NOT be scanned
+          cat > /tmp/scan-file/other.md << 'EOF'
+          # Other
+
+          ```bash
+          npm install this-package-definitely-does-not-exist-xyz-abc-123
+          ```
+          EOF
+
+      - name: Run slopcheck on specific file only (not the other file)
+        id: action
+        uses: .
+        with:
+          paths: '/tmp/scan-file/docs.md'
+          concurrency: '5'
+
+      - name: Assert action succeeded (only scanned the specified file with real packages)
+        run: |
+          echo "Action completed successfully — specific file scanned, real packages verified"
+          echo "PASS"

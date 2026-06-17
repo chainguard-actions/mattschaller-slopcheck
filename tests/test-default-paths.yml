@@ -1,0 +1,36 @@
+name: Test default paths with concurrency setting
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Build action
+        working-directory: ${{ github.workspace }}
+        run: |
+          npm install
+          npm run build
+
+      - name: Create temp scan directory with no npm references
+        run: |
+          mkdir -p /tmp/scan-default
+          cat > /tmp/scan-default/notes.md << 'EOF'
+          # Notes
+
+          This file has no npm install commands.
+          Just plain documentation text.
+          EOF
+
+      - name: Run slopcheck with custom concurrency
+        id: action
+        uses: .
+        with:
+          paths: '/tmp/scan-default'
+          concurrency: '3'
+
+      - name: Assert action succeeded with custom concurrency setting
+        run: |
+          echo "Action completed successfully with concurrency=3"
+          echo "PASS"

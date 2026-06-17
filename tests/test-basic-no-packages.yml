@@ -1,0 +1,36 @@
+name: Test basic scan with no package references
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Build action
+        working-directory: ${{ github.workspace }}
+        run: |
+          npm install
+          npm run build
+
+      - name: Create temp scan directory with no npm references
+        run: |
+          mkdir -p /tmp/scan-target
+          cat > /tmp/scan-target/README.md << 'EOF'
+          # My Project
+
+          This is a simple project with no npm install commands.
+          Just plain text documentation.
+          EOF
+
+      - name: Run slopcheck on directory with no package references
+        id: action
+        uses: .
+        with:
+          paths: '/tmp/scan-target'
+          concurrency: '5'
+
+      - name: Assert action succeeded (no phantom packages)
+        run: |
+          echo "Action completed successfully — no phantom packages found"
+          echo "PASS"

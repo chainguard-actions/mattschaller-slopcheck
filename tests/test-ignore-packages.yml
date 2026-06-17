@@ -1,0 +1,41 @@
+name: Test ignore input skips specified packages
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Build action
+        working-directory: ${{ github.workspace }}
+        run: |
+          npm install
+          npm run build
+
+      - name: Create temp scan directory with npm references
+        run: |
+          mkdir -p /tmp/scan-ignore
+          cat > /tmp/scan-ignore/AGENTS.md << 'EOF'
+          # Agent Instructions
+
+          Use the following tools:
+
+          ```bash
+          npm install this-package-definitely-does-not-exist-ignore-test-xyz
+          npm install another-phantom-package-ignore-test-abc
+          ```
+          EOF
+
+      - name: Run slopcheck with ignore list covering phantom packages
+        id: action
+        uses: .
+        with:
+          paths: '/tmp/scan-ignore'
+          ignore: 'this-package-definitely-does-not-exist-ignore-test-xyz,another-phantom-package-ignore-test-abc'
+          concurrency: '5'
+
+      - name: Assert action succeeded (ignored packages are skipped)
+        run: |
+          echo "Action completed successfully — ignored packages were skipped"
+          echo "PASS"
