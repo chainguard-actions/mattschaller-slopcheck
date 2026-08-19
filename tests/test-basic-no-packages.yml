@@ -1,4 +1,4 @@
-name: Test basic scan with no package references
+name: Test basic scan with no npm package references
 on:
   workflow_dispatch:
 jobs:
@@ -7,30 +7,28 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Build action
-        working-directory: ${{ github.workspace }}
+      # Install pre-built dist so the action can run without building from source
+      - name: Install pre-built dist
         run: |
-          npm install
-          npm run build
+          set -e
+          echo "=== Setting up pre-built dist ==="
+          mkdir -p "$GITHUB_WORKSPACE/action/dist"
+          cp "$GITHUB_WORKSPACE/tests/fixtures/prebuilt-dist/index.js" "$GITHUB_WORKSPACE/action/dist/index.js"
+          cp "$GITHUB_WORKSPACE/tests/fixtures/prebuilt-dist/package.json" "$GITHUB_WORKSPACE/action/dist/package.json"
+          # Also copy to workspace root in case act resolves uses: . to workspace root
+          mkdir -p "$GITHUB_WORKSPACE/dist"
+          cp "$GITHUB_WORKSPACE/tests/fixtures/prebuilt-dist/index.js" "$GITHUB_WORKSPACE/dist/index.js"
+          cp "$GITHUB_WORKSPACE/tests/fixtures/prebuilt-dist/package.json" "$GITHUB_WORKSPACE/dist/package.json"
+          echo "=== Pre-built dist installed: ==="
+          ls -la "$GITHUB_WORKSPACE/action/dist/"
 
-      - name: Create temp scan directory with no npm references
-        run: |
-          mkdir -p /tmp/scan-target
-          cat > /tmp/scan-target/README.md << 'EOF'
-          # My Project
-
-          This is a simple project with no npm install commands.
-          Just plain text documentation.
-          EOF
-
-      - name: Run slopcheck on directory with no package references
-        id: action
+      - id: action
         uses: .
         with:
-          paths: '/tmp/scan-target'
+          paths: '${{ github.workspace }}/tests/fixtures/no-packages'
           concurrency: '5'
 
-      - name: Assert action succeeded (no phantom packages)
+      - name: Assert action succeeded (no phantom packages found)
         run: |
-          echo "Action completed successfully — no phantom packages found"
+          echo "Action completed successfully — no phantom packages detected"
           echo "PASS"

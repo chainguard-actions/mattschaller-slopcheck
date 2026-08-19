@@ -1,4 +1,4 @@
-name: Test ignore input skips specified packages
+name: Test scan with known-good npm packages
 on:
   workflow_dispatch:
 jobs:
@@ -25,11 +25,10 @@ jobs:
       - id: action
         uses: .
         with:
-          paths: '${{ github.workspace }}/tests/fixtures/ignore-test'
-          ignore: 'slopcheck-test-phantom-pkg-xyzzy-12345'
+          paths: '${{ github.workspace }}/tests/fixtures/good-packages'
           concurrency: '5'
 
-      - name: Assert action succeeded (phantom package was ignored)
+      - name: Assert action succeeded (all packages exist on npm)
         run: |
-          echo "Action completed successfully — phantom package was in the ignore list"
+          echo "Action completed successfully — all referenced packages exist on npm"
           echo "PASS"

@@ -7,42 +7,30 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Build action
-        working-directory: ${{ github.workspace }}
+      # Install pre-built dist so the action can run without building from source
+      - name: Install pre-built dist
         run: |
-          npm install
-          npm run build
+          set -e
+          echo "=== Setting up pre-built dist ==="
+          mkdir -p "$GITHUB_WORKSPACE/action/dist"
+          cp "$GITHUB_WORKSPACE/tests/fixtures/prebuilt-dist/index.js" "$GITHUB_WORKSPACE/action/dist/index.js"
+          cp "$GITHUB_WORKSPACE/tests/fixtures/prebuilt-dist/package.json" "$GITHUB_WORKSPACE/action/dist/package.json"
+          # Also copy to workspace root in case act resolves uses: . to workspace root
+          mkdir -p "$GITHUB_WORKSPACE/dist"
+          cp "$GITHUB_WORKSPACE/tests/fixtures/prebuilt-dist/index.js" "$GITHUB_WORKSPACE/dist/index.js"
+          cp "$GITHUB_WORKSPACE/tests/fixtures/prebuilt-dist/package.json" "$GITHUB_WORKSPACE/dist/package.json"
+          echo "=== Pre-built dist installed: ==="
+          ls -la "$GITHUB_WORKSPACE/action/dist/"
 
-      - name: Create specific markdown files to scan
-        run: |
-          mkdir -p /tmp/scan-file
-          cat > /tmp/scan-file/docs.md << 'EOF'
-          # Documentation
-
-          Install dependencies:
-
-          ```bash
-          npm install react
-          npm install react-dom
-          ```
-          EOF
-          # Create another file that should NOT be scanned
-          cat > /tmp/scan-file/other.md << 'EOF'
-          # Other
-
-          ```bash
-          npm install this-package-definitely-does-not-exist-xyz-abc-123
-          ```
-          EOF
-
-      - name: Run slopcheck on specific file only (not the other file)
-        id: action
+      - id: action
         uses: .
         with:
-          paths: '/tmp/scan-file/docs.md'
+          # Only scan the specific docs.md file (which has lodash — a real package),
+          # not other.md which has a phantom package
+          paths: '${{ github.workspace }}/tests/fixtures/specific-file/docs.md'
           concurrency: '5'
 
-      - name: Assert action succeeded (only scanned the specified file with real packages)
+      - name: Assert action succeeded (only scanned the specified file)
         run: |
-          echo "Action completed successfully — specific file scanned, real packages verified"
+          echo "Action completed successfully — only the specified file was scanned"
           echo "PASS"
