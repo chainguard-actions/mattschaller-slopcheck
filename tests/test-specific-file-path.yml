@@ -1,0 +1,25 @@
+name: Test scanning a specific file path
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Build action
+        run: |
+          npm install
+          npm run build
+
+      - id: action
+        uses: .
+        with:
+          # Only scan the docs.md file, not other.md which has a phantom package
+          paths: 'tests/fixtures/specific-file/docs.md'
+          concurrency: '5'
+
+      - name: Assert action succeeded (only scanned the specified file with real packages)
+        run: |
+          echo "Action completed successfully — only the specified file was scanned"
+          echo "PASS"

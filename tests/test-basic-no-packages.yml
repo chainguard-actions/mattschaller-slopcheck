@@ -1,0 +1,24 @@
+name: Test basic scan with no npm references
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Build action
+        run: |
+          npm install
+          npm run build
+
+      - id: action
+        uses: .
+        with:
+          paths: 'tests/fixtures/no-packages'
+          concurrency: '5'
+
+      - name: Assert action succeeded (no phantom packages found)
+        run: |
+          echo "Action completed successfully — no phantom packages detected"
+          echo "PASS"
